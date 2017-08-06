@@ -4,7 +4,7 @@ import java.util.Properties
 
 import org.apache.kafka.common.serialization._
 import org.apache.kafka.streams._
-import org.apache.kafka.streams.kstream.KStreamBuilder
+import org.apache.kafka.streams.kstream.{KStreamBuilder, KeyValueMapper}
 
 /**
   * Copyright Knoldus Software LLP, 2017. All rights reserved.
@@ -27,9 +27,13 @@ object MapExample {
     val originalStream = builder.stream("SourceTopic")
 
     val mappedStream =
-      originalStream.map[String, Integer]((key: String, value: String) =>
-        new KeyValue(key, new Integer(value.length))
-      )
+      originalStream.map[String, Integer] {
+        new KeyValueMapper[String, String, KeyValue[String, Integer]] {
+          override def apply(key: String, value: String): KeyValue[String, Integer] = {
+            new KeyValue(key, new Integer(value.length))
+          }
+        }
+      }
     mappedStream.to(stringSerde, integerSerde, "SinkTopic")
 
     val streams = new KafkaStreams(builder, config)
