@@ -28,6 +28,7 @@ object AggregationExampleWithSAM {
     val builder = new KStreamBuilder()
     val originalStream = builder.stream("SourceTopic")
 
+    //Works only with Scala 2.12.x
     val mappedStream: KTable[String, java.lang.Long] =
       originalStream.flatMapValues((value: String) =>
         value.toLowerCase.split("\\W+").toIterable.asJava)
